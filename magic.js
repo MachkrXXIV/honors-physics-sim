@@ -1,4 +1,4 @@
-/*let Engine = Matter.Engine,
+let Engine = Matter.Engine,
     Render = Matter.Render,
     Runner = Matter.Runner,
     Bodies = Matter.Bodies,
@@ -10,14 +10,28 @@ let engine = Engine.create();
 // create a renderer
 let render = Render.create({
   element: document.body,
-  engine: engine
+  engine: engine,
+  options: {
+    width: 1260,
+    height: 650,
+    wireframes: false
+  }
 });
 
 
 // create two boxes and a ground
-let boxA = Bodies.rectangle(400,200,80,80);
+let boxA = Bodies.rectangle(100,200,80,80);
 let boxB = Bodies.rectangle(450,50,80,80);
-let ground = Bodies.rectangle(400, 610, 810, 60, {isStatic: true});
+let ground = Bodies.rectangle(600, 610, 1560, 60, {isStatic: true});
+
+// constraints
+let mouse = Matter.Mouse.create(render.canvas);
+let mouseConstraint = Matter.MouseConstraint.create(engine, {
+  mouse: mouse,
+  constraint: {
+    render: {visible: false}
+  }
+});
 
 // add all of the bodies to the world
 Composite.add(engine.world, [boxA, boxB, ground]);
@@ -29,37 +43,5 @@ Render.run(render);
 let runner = Runner.create();
 
 // run the engine
-Runner.run(runner, engine);*/
-
-// module aliases
-var Engine = Matter.Engine,
-    Render = Matter.Render,
-    Runner = Matter.Runner,
-    Bodies = Matter.Bodies,
-    Composite = Matter.Composite;
-
-// create an engine
-var engine = Engine.create();
-
-// create a renderer
-var render = Render.create({
-    element: document.body,
-    engine: engine
-});
-
-// create two boxes and a ground
-var boxA = Bodies.rectangle(400, 200, 80, 80);
-var boxB = Bodies.rectangle(450, 50, 80, 80);
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-
-// add all of the bodies to the world
-Composite.add(engine.world, [boxA, boxB, ground]);
-
-// run the renderer
-Render.run(render);
-
-// create runner
-var runner = Runner.create();
-
-// run the engine
 Runner.run(runner, engine);
+
