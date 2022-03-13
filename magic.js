@@ -20,9 +20,10 @@ let render = Render.create({
 
 
 // create two boxes and a ground
-let boxA = Bodies.rectangle(100,200,80,80);
-let boxB = Bodies.rectangle(450,50,80,80);
+let boxA = Bodies.rectangle(100,400,40,40);
+let boxB = Bodies.rectangle(450,400,40,40);
 let ground = Bodies.rectangle(600, 500, 1560, 60, {isStatic: true});
+let ceil = Bodies.rectangle(600, 20, 1560, 60, {isStatic: true});
 
 // constraints
 let mouse = Matter.Mouse.create(render.canvas);
@@ -35,7 +36,7 @@ let mouseConstraint = Matter.MouseConstraint.create(engine, {
 render.mouse = mouse;
 
 // add all of the bodies to the world
-Composite.add(engine.world, [boxA, boxB, ground, mouseConstraint]);
+Composite.add(engine.world, [boxA, boxB, ground, ceil, mouseConstraint]);
 
 // run the renderer
 Render.run(render);
