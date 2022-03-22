@@ -1,9 +1,12 @@
+body {
+  background-color: teal;
+}
+
 canvas {
   height: auto;
 }
 
-body {
-  background-color: teal;
+.content {
   display: flex;
   justify-content: center;
   align-items: center;
