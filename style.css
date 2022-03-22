@@ -1,12 +1,13 @@
-.content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0;
+canvas {
+  height: auto;
 }
 
 body {
   background-color: teal;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column;
 }
 
 h1 {
