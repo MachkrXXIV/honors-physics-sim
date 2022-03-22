@@ -4,6 +4,7 @@ let Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Composite = Matter.Composite;
 let content = document.querySelector(".content");
+let kilos = 15;
 
 // create an engine
 let engine = Engine.create();
@@ -31,7 +32,16 @@ function setup() {
   let stack = Matter.Composites.stack(600,100,5,5,0,0, function(x,y) {
     return Bodies.rectangle(x,y, 40, 40);
   });
-  let projectile = Bodies.circle(-300,400, 20);
+  let projectile = Bodies.circle(-200,400, 20,);
+  projectile.mass = kilos;
+  projectile.inverseMass = 1/projectile.mass;
+  let sling = Matter.Constraint.create({
+    pointA: {x:-200, y:400},
+    bodyB: projectile,
+    stiffness: 0.05
+
+  })
+  
 
   // constraints
   let mouse = Matter.Mouse.create(render.canvas);
@@ -43,8 +53,23 @@ function setup() {
   });
   render.mouse = mouse;
 
+  let firing = false;
+  Matter.Events.on(mouseConstraint, "enddrag", (e) => {
+    if (e.body === projectile) firing = true;
+  });
+  Matter.Events.on(engine, "afterUpdate", () => {
+    if (firing && Math.abs(projectile.position.x+200) < 20 && Math.abs(projectile.position.y-400) < 20) {
+      projectile = Matter.Bodies.circle(-200, 400, 20);
+      Matter.World.add(engine.world, projectile);
+      sling.bodyB = projectile;
+      firing = false;
+      projectile.mass = kilos;
+      projectile.inverseMass = 1/projectile.mass;
+    }
+  });
+
   // add all of the bodies to the world
-  Composite.add(engine.world, [projectile, ground,platform, ceil, lWall, rWall,  mouseConstraint, stack]);
+  Composite.add(engine.world, [sling, projectile, ground,platform, ceil, lWall, rWall,  mouseConstraint, stack]);
   //engine.world.gravity.y = 0;
 
   // run the renderer
