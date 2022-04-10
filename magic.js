@@ -5,11 +5,19 @@ let Engine = Matter.Engine,
     Composite = Matter.Composite;
 let content = document.querySelector(".content");
 let kilos = 15;
+let bouncy = {
+  restitution: 1,
+  inertia: Infinity,
+  friction: 0,
+  frictionAir: 0,
+  frictionStatic: 0
+
+};
 
 
 // create an engine
 let engine = Engine.create();
-engine.world.gravity.y = 1;
+engine.world.gravity.y = 0;
 
 // create a renderer
 let render = Render.create({
@@ -18,7 +26,7 @@ let render = Render.create({
   options: {
     width: 1600,
     height: 500,
-    wireframes: true,
+    wireframes: false,
     showVelocity: true,
     showPositions: true
   }
@@ -31,17 +39,10 @@ function setup() {
   let ceil = Bodies.rectangle(400, 0, 1560, 60, {isStatic: true});
   let lWall = Bodies.rectangle(-375, 300, 60, 800, {isStatic: true});
   let rWall = Bodies.rectangle(1175, 300, 60, 800, {isStatic: true});
-  /*let stack = Matter.Composites.stack(600,100,5,5,0,0, function(x,y) {
-    return Bodies.rectangle(x,y, 40, 40);
-  });*/
-  let projectile = Bodies.circle(-200,400, 20, {
-    restitution: 1,
-    inertia: Infinity,
-    friction: 0,
-    frictionAir: 0,
-    frictionStatic: 0
-    
+  let stack = Matter.Composites.stack(600,100,5,5,0,0, function(x,y) {
+    return Bodies.circle(x,y, 20, bouncy);
   });
+  let projectile = Bodies.circle(-200,400, 20,bouncy);
   /*projectile.mass = kilos;
   projectile.inverseMass = 1/projectile.mass;*/
   let sling = Matter.Constraint.create({
@@ -51,8 +52,6 @@ function setup() {
 
   })
   
-  Composite.allBodies.restitution = 1;
-
   // constraints
   let mouse = Matter.Mouse.create(render.canvas);
   let mouseConstraint = Matter.MouseConstraint.create(engine, {
@@ -69,14 +68,7 @@ function setup() {
   });
   Matter.Events.on(engine, "afterUpdate", () => {
     if (firing && Math.abs(projectile.position.x+200) < 20 && Math.abs(projectile.position.y-400) < 20) {
-      projectile = Matter.Bodies.circle(-200, 400, 20, {
-        restitution: 1,
-        inertia: Infinity,
-        friction: 0,
-        frictionAir: 0,
-        frictionStatic: 0
-        
-      });
+      projectile = Matter.Bodies.circle(-200, 400, 20,bouncy);
       Matter.World.add(engine.world, projectile);
       sling.bodyB = projectile;
       firing = false;
@@ -85,28 +77,30 @@ function setup() {
     }
   });
 
-  let explosion = function(engine) {
-    let bodies = Composite.allBodies(engine.world);
 
-    for (let i = 0; i < bodies.length; i++) {
-        let body = bodies[i];
+  Matter.Events.on(engine, 'collisionStart', function(event) {
+    let pairs = event.pairs;
 
-        if (!body.isStatic && body.position.y == 500) {
-            let forceMagnitude = 5000;
+    for (let i = 0; i < pairs.length; i++) {
+      let pair = pairs[i];
 
-            Body.applyForce(body, body.position, {
-                x: (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]), 
-                y: -forceMagnitude + Common.random() * -forceMagnitude
-            });
-        }
+      if (!pair.bodyA.isStatic && pair.bodyA.speed < 1) {
+        let forceMagnitude = 50;
+
+        pair.bodyA.render.fillStyle = '#333';
+
+        Body.setVelocity(pair.bodyA,  {
+          x: (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]), 
+          y: -forceMagnitude + Common.random() * -forceMagnitude
+        });
     }
-};
+  }
+});
 
 
-explosion(engine);
 
   // add all of the bodies to the world
-  Composite.add(engine.world, [sling, projectile, ground, /*platform*/ ceil, lWall, rWall,  mouseConstraint, /*stack*/]);
+  Composite.add(engine.world, [sling, projectile, ground, /*platform*/ ceil, lWall, rWall,  mouseConstraint, stack]);
   //engine.world.gravity.y = 0;
 
   // run the renderer
