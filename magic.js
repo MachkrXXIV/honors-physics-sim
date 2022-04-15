@@ -51,7 +51,7 @@ function setup() {
     stiffness: 0.05
 
   })
-  
+
   // constraints
   let mouse = Matter.Mouse.create(render.canvas);
   let mouseConstraint = Matter.MouseConstraint.create(engine, {
@@ -65,7 +65,9 @@ function setup() {
   let firing = false;
   Matter.Events.on(mouseConstraint, "enddrag", (e) => {
     if (e.body === projectile) firing = true;
+    console.log(projectile.velocity);
   });
+
   Matter.Events.on(engine, "afterUpdate", () => {
     if (firing && Math.abs(projectile.position.x+200) < 20 && Math.abs(projectile.position.y-400) < 20) {
       projectile = Matter.Bodies.circle(-200, 400, 20,bouncy);
@@ -100,13 +102,13 @@ function setup() {
 
 
   // add all of the bodies to the world
-  Composite.add(engine.world, [sling, projectile, ground, /*platform*/ ceil, lWall, rWall,  mouseConstraint, stack]);
+  Composite.add(engine.world, [sling, projectile, ground, /*platform*/ ceil, lWall, rWall,  mouseConstraint, /*stack*/]);
   //engine.world.gravity.y = 0;
 
   // run the renderer
   Render.run(render);
 
-  // create runner
+  // create runners
   let runner = Runner.create();
 
   // run the engine
@@ -117,7 +119,9 @@ function update() {
 
 }
 // main
+let position = document.querySelector("position");
 setup();
+
 
 Render.lookAt(render, {
   min: { x: 0, y: 0 },
