@@ -10,7 +10,7 @@ let bouncy = {
   inertia: Infinity,
   friction: 0,
   frictionAir: 0,
-  frictionStatic: 0
+  frictionStatic: 5
 
 };
 
@@ -40,7 +40,7 @@ function setup() {
   let lWall = Bodies.rectangle(-375, 300, 60, 800, {isStatic: true});
   let rWall = Bodies.rectangle(1175, 300, 60, 800, {isStatic: true});
   let stack = Matter.Composites.stack(600,100,5,5,0,0, function(x,y) {
-    return Bodies.circle(x,y, 20, bouncy);
+    return Bodies.circle(x,y, 20, /*bouncy*/);
   });
   let projectile = Bodies.circle(-200,400, 20,bouncy);
   /*projectile.mass = kilos;
