@@ -10,9 +10,13 @@ let bouncy = {
   inertia: Infinity,
   friction: 0,
   frictionAir: 0,
-  frictionStatic: 5
+  frictionStatic: 0
+  
 
 };
+
+let defaultCategory = 1;
+let altCategory = 2;
 
 
 // create an engine
@@ -36,13 +40,20 @@ function setup() {
   // bodies; height: top(0)-bottom(600), width: -375-1175
   let ground = Bodies.rectangle(400, 600, 1600, 60, {isStatic: true});
   //let platform = Bodies.rectangle(700, 300, 360, 40, {isStatic: true});
-  let ceil = Bodies.rectangle(400, 0, 1560, 60, {isStatic: true});
+  let ceil = Bodies.rectangle(400, 0, 1560, 60, {isStatic: true, collisionFilter: {
+    group: 1,
+    category: defaultCategory,
+    mask: altCategory
+  }});
   let lWall = Bodies.rectangle(-375, 300, 60, 800, {isStatic: true});
   let rWall = Bodies.rectangle(1175, 300, 60, 800, {isStatic: true});
-  let stack = Matter.Composites.stack(600,100,5,5,0,0, function(x,y) {
-    return Bodies.circle(x,y, 20, /*bouncy*/);
-  });
+  
   let projectile = Bodies.circle(-200,400, 20,bouncy);
+  projectile.collisionFilter = {
+    group: -1,
+    category: altCategory,
+    mask: defaultCategory
+  };
   /*projectile.mass = kilos;
   projectile.inverseMass = 1/projectile.mass;*/
   let sling = Matter.Constraint.create({
@@ -70,7 +81,12 @@ function setup() {
 
   Matter.Events.on(engine, "afterUpdate", () => {
     if (firing && Math.abs(projectile.position.x+200) < 20 && Math.abs(projectile.position.y-400) < 20) {
-      projectile = Matter.Bodies.circle(-200, 400, 20,bouncy);
+      projectile = Matter.Bodies.circle(-200, 400, 20, bouncy)
+      projectile.collisionFilter = {
+      group: -1,
+      category: altCategory,
+      mask: defaultCategory
+      };
       Matter.World.add(engine.world, projectile);
       sling.bodyB = projectile;
       firing = false;
